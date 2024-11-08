@@ -8,6 +8,7 @@
 
 const User = require("../models/userModel")
 const jwt = require("jsonwebtoken")
+const mongoose = require("mongoose")
 
 /**
  * @function sign
@@ -103,5 +104,44 @@ const editUsername = async (req, res) => {
     }
 };
 
+const follow = async (req, res) => {
+    const followerId = req.user._id
+    const {followeeId} = req.params
 
-module.exports = {loginUser, signupUser, getAllUsers, editUsername}
+    try {
+        const followingList = await User.follow(followerId, followeeId)
+        res.status(200).json({following: followingList})
+    } catch (error) { 
+        res.status(400).json({error: error.message})
+    }
+}
+
+const unfollow = async (req, res) => {
+    const followerId = req.user._id
+    const {followeeId} = req.params
+
+    try {
+        const followingList = await User.unfollow(followerId, followeeId)
+        res.status(200).json({following: followingList})
+    } catch (error) { 
+        res.status(400).json({error: error.message})
+    } 
+}
+
+const getUser = async (req, res) => {
+    const { userId } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(404).json({error: "No such user"})
+    }
+
+    const user = await User.findById(userId).select("username following followers")
+    if (!user) {
+        return res.status(404).json({error: "No such user"})
+    }
+    else {
+        return res.status(200).json({user})
+    }
+}
+
+module.exports = {loginUser, signupUser, getAllUsers, editUsername, follow, unfollow, getUser}

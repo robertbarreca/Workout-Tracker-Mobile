@@ -19,7 +19,7 @@ const express = require("express")
 const requireAuth = require("../middleware/requireAuth")
 const router = express.Router()
 // controller functions
-const {loginUser, signupUser, getAllUsers, editUsername} = require("../controllers/userController")
+const {loginUser, signupUser, getAllUsers, editUsername, follow, unfollow, getFollowers, getFollowing, getUser} = require("../controllers/userController")
 
 // login route
 router.post("/login", loginUser)
@@ -30,24 +30,20 @@ router.post("/signup", signupUser)
 // require authentication for all routes below
 router.use(requireAuth)
 
-// // get followers route
-// router.get("/:id/followers", (req, res)=> {})
-
-// // get following
-// router.get("/:userId/following", (req, res)=> {})
+// get individual user
+router.get("/:userId", getUser)
 
 // get all users (will be used for search functionality)
 router.get("/", getAllUsers)
 
 // // follow user
-// router.post("/users/:userId/follow", (req, res) => {})
+router.post("/follow/:followeeId/", follow)
 
 // // unfollow user
-// router.post("/users/:userId/unfollow", (req, res) => {})
+router.post("/unfollow/:followeeId", unfollow)
 
 // edit username 
 router.put("/editusername", editUsername)
 
-// // get all workouts of their following (do later)
 
 module.exports = router

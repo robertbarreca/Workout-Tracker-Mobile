@@ -127,6 +127,60 @@ userSchema.statics.editUsername = async function (userId, newUsername) {
     }
 }
 
+userSchema.statics.follow = async function (followerId, followeeId) {
+    followeeId = new mongoose.Types.ObjectId(followeeId)
+    // check if attempting follow themselves
+    if (followerId.equals(followeeId)) {
+        throw Error("You cannot follow yourself")
+    }
+
+    // person trying to follow does not exist
+    const followee = await this.findById(followeeId)
+    const follower = await this.findById(followerId)
+    if (!followee) {
+        throw Error("Followee does not exist")
+    }
+
+    // check if already following
+    if (!followee.followers.includes(followerId)) {
+            followee.followers.push(followerId);
+            follower.following.push(followeeId);
+
+            await followee.save();
+            await follower.save();
+
+            return follower.following;
+        } else {
+            throw Error("Already following user");
+        }
+}
+
+userSchema.statics.unfollow = async function (followerId, followeeId) {
+    followeeId = new mongoose.Types.ObjectId(followeeId)
+    console.log(followerId)
+    console.log(followeeId)
+
+    // person trying to follow does not exist
+    const followee = await this.findById(followeeId)
+    const follower = await this.findById(followerId)
+    if (!followee) {
+        throw Error("Followee does not exist")
+    }
+
+    // check if already following
+    if (followee.followers.includes(followerId)) {
+            followee.followers = followee.followers.filter(id => !id.equals(followerId));
+            follower.following = follower.following.filter(id => !id.equals(followeeId));
+
+            await followee.save();
+            await follower.save();
+
+            return follower.following;
+        } else {
+            throw Error("Not following user");
+        }
+}
+
 /**
  * @function validateUsername
  * @description This helper function ensures that a username is a valid length, only contains valid characters, and is not already in use
