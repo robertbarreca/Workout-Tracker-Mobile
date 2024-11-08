@@ -16,9 +16,10 @@
  */
 
 const express = require("express")
+const requireAuth = require("../middleware/requireAuth")
 const router = express.Router()
 // controller functions
-const {loginUser, signupUser} = require("../controllers/userController")
+const {loginUser, signupUser, getAllUsers} = require("../controllers/userController")
 
 // login route
 router.post("/login", loginUser)
@@ -26,14 +27,17 @@ router.post("/login", loginUser)
 // signup route
 router.post("/signup", signupUser)
 
+// require authentication for all routes below
+router.use(requireAuth)
+
 // // get followers route
 // router.get("/:id/followers", (req, res)=> {})
 
 // // get following
 // router.get("/:userId/following", (req, res)=> {})
 
-// // get all users (will be used for search functionality)
-// router.get("/", (req, res)=> {})
+// get all users (will be used for search functionality)
+router.get("/", getAllUsers)
 
 // // follow user
 // router.post("/users/:userId/follow", (req, res) => {})
