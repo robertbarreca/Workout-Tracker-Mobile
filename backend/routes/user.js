@@ -46,7 +46,7 @@ router.get("/", getAllUsers)
 // router.post("/users/:userId/unfollow", (req, res) => {})
 
 // edit username 
-router.put("/", editUsername)
+router.put("/editusername", editUsername)
 
 // // get all workouts of their following (do later)
 
