@@ -19,7 +19,7 @@ const express = require("express")
 const requireAuth = require("../middleware/requireAuth")
 const router = express.Router()
 // controller functions
-const {loginUser, signupUser, getAllUsers} = require("../controllers/userController")
+const {loginUser, signupUser, getAllUsers, editUsername} = require("../controllers/userController")
 
 // login route
 router.post("/login", loginUser)
@@ -45,8 +45,8 @@ router.get("/", getAllUsers)
 // // unfollow user
 // router.post("/users/:userId/unfollow", (req, res) => {})
 
-// // edit name 
-// router.put("/users/:userId/", (req, res) => {})
+// edit username 
+router.put("/", editUsername)
 
 // // get all workouts of their following (do later)
 

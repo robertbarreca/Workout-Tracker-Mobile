@@ -31,12 +31,16 @@ const userSchema = new Schema({
  * 
  * @returns {Object} The newly created user object, including the hashed password.
  */
-
-
 userSchema.statics.signup = async function (email, password, username) {
     // remove all caps from username
     email = email.toLowerCase()
     username = username.toLowerCase()
+
+    try {
+        username = await this.validateUsername(username)
+    } catch (error) {
+        throw error
+    }
 
     // validate body is filled
     if (!email || !password || !username) {
@@ -50,27 +54,11 @@ userSchema.statics.signup = async function (email, password, username) {
     if (!validator.isStrongPassword(password)) {
         throw Error("Password not strong enough")
     }
-    
-    // Ensure username only contains valid characters (letters, numbers, underscores)
-    if (!/^[a-z0-9_]+$/.test(username)) {
-        throw Error("Username can only contain lowercase letters, numbers, and underscores");
-    }
-
-    // Username validation for length
-    if (username.length < 3 || username.length > 25) {
-        throw Error("Username must be between 3 and 25 characters");
-    }
 
     // check if email exists
     const emailExists = await this.findOne({ email })
     if (emailExists) {
         throw Error("Email already in use")
-    }
-
-    // check if username exists
-    const usernameExists = await this.findOne({ username })
-    if (usernameExists) {
-        throw Error("Username already in use")
     }
 
     // hash password
@@ -82,6 +70,20 @@ userSchema.statics.signup = async function (email, password, username) {
     return user
 }
 
+
+
+/**
+ * @function login
+ * @description Static method for user schema that handles user login by validating the email and password. 
+ * If the credentials are correct, the user object is returned.
+ * 
+ * @param {string} email - The user's email address used for account login.
+ * @param {string} password - The password that the user provides to log in.
+ * 
+ * @throws {Error} If the email does not correspond to an account, if the password is incorrect, or if either the email or password is missing.
+ * 
+ * @returns {Object} The logged-in user object.
+ */
 userSchema.statics.login = async function (email, password) {
     email = email.toLowerCase()
 
@@ -103,6 +105,58 @@ userSchema.statics.login = async function (email, password) {
     }
 
     return user
+}
+
+
+userSchema.statics.editUsername = async function (userId, newUsername) {
+    console.log(newUsername)
+    if (!newUsername) {
+        throw Error("must provide new username")
+    }
+    try {
+        newUsername = await this.validateUsername(newUsername)
+
+        const updatedUser = await this.findOneAndUpdate(
+            { _id: userId },
+            { username: newUsername },
+            { new: true, runValidators: true, context: 'query' }
+        ).select("_id username");
+        return updatedUser
+    } catch (error) {
+        throw error
+    }
+}
+
+/**
+ * @function validateUsername
+ * @description This helper function ensures that a username is a valid length, only contains valid characters, and is not already in use
+ * 
+ * @param {*} username the username to be validated
+ * 
+ * @throws {Error} if the username is not a valid length, contains invalid characters or is already in use
+ * 
+ * @returns the user name if it can be used 
+ */
+userSchema.statics.validateUsername = async function (username) {
+    username = username.toLowerCase()
+
+    // Username validation for length
+    if (username.length < 3 || username.length > 25) {
+        throw Error("Username must be between 3 and 25 characters");
+    }
+
+    // Ensure username only contains valid characters (letters, numbers, underscores)
+    if (!/^[a-z0-9_]+$/.test(username)) {
+        throw Error("Username can only contain lowercase letters, numbers, and underscores");
+    }
+
+    // check if username exists
+    const usernameExists = await this.findOne({ username })
+    if (usernameExists) {
+        throw Error("Username already in use")
+    }
+
+    return username
 }
 
 module.exports = mongoose.model("User", userSchema)
