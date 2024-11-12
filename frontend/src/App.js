@@ -4,6 +4,8 @@ import Home from "./pages/Home";
 import NavBar from "./components/NavBar";
 import AddWorkout from "./pages/AddWorkout";
 import Feed from "./pages/Feed"
+import Login from "./pages/Login"
+import Signup from "./pages/Signup"
 
 function App() {
   return (
@@ -14,7 +16,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/addworkout" element={<AddWorkout />} />
-             <Route path="/feed" element={<Feed />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </div>
       </BrowserRouter>
